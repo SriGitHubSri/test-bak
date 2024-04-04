@@ -1,0 +1,510 @@
+# Default values for the Backstage chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Global parameters
+# Global Docker image parameters
+# Please, note that this will override the image parameters, including dependencies, configured to use the global value
+# Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+# @default -- See below
+global:
+  # -- Global Docker image registry
+  imageRegistry: ""
+
+  # -- Global Docker registry secret names as an array
+  # </br> E.g. `imagePullSecrets: [myRegistryKeySecretName]`
+  imagePullSecrets: []
+
+# -- Common parameters
+
+# -- Override Kubernetes version
+kubeVersion: ""
+
+# -- String to partially override common.names.fullname
+nameOverride: ""
+
+# -- String to fully override common.names.fullname
+fullnameOverride: ""
+
+# -- Default Kubernetes cluster domain
+clusterDomain: cluster.local
+
+# -- Labels to add to all deployed objects
+commonLabels: {}
+
+# -- Annotations to add to all deployed objects
+commonAnnotations: {}
+
+# -- Array of extra objects to deploy with the release
+extraDeploy: []
+
+# -- Enable diagnostic mode in the Deployment
+diagnosticMode:
+
+  # -- Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  enabled: false
+
+  # -- Command to override all containers in the Deployment
+  command:
+  - sleep
+
+  # -- Args to override all containers in the Deployment
+  args:
+  - infinity
+
+# -- Ingress parameters
+ingress:
+
+  # -- Enable the creation of the ingress resource
+  enabled: false
+
+  # -- Name of the IngressClass cluster resource which defines which controller will implement the resource (e.g nginx)
+  className: ""
+
+  # -- Additional annotations for the Ingress resource
+  annotations: {}
+
+  # -- Hostname to be used to expose the route to access the backstage application (e.g: backstage.IP.nip.io)
+  host: ""
+
+  # -- Ingress TLS parameters
+  tls:
+
+    # -- Enable TLS configuration for the host defined at `ingress.host` parameter
+    enabled: false
+
+    # -- The name to which the TLS Secret will be called
+    secretName: ""
+
+# -- Backstage parameters
+# @default -- See below
+backstage:
+
+  # -- Number of deployment replicas
+  replicas: 1
+
+  # -- Define the [count of deployment revisions](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#clean-up-policy) to be kept.
+  # May be set to 0 in case of GitOps deployment approach.
+  revisionHistoryLimit: 10
+
+  image:
+
+    # -- Backstage image registry
+    registry: ghcr.io
+
+    # -- Backstage image repository
+    repository: backstage/backstage
+
+    # -- Backstage image tag (immutable tags are recommended)
+    tag: latest
+
+    # -- Specify a imagePullPolicy.
+    # Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    # <br /> Ref: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+    pullPolicy: Always
+
+    # -- Optionally specify an array of imagePullSecrets.
+    #  Secrets must be manually created in the namespace.
+    # <br /> Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    # <br /> E.g: `pullSecrets: [myRegistryKeySecretName]`
+    pullSecrets: []
+
+  # -- Container ports on the Deployment
+  containerPorts:
+    backend: 7007
+
+  # -- Backstage container command
+  command: ["node", "packages/backend"]
+
+  # -- Backstage container command arguments
+  args: []
+
+  # -- Extra app configuration files to inline into command arguments
+  extraAppConfig: []
+
+  # -- Deployment sidecars
+  extraContainers: []
+
+  # -- Backstage container environment variables
+  extraEnvVars: []
+
+  # -- Backstage container environment variables from existing ConfigMaps
+  extraEnvVarsCM: []
+
+  # -- Backstage container environment variables from existing Secrets
+  extraEnvVarsSecrets: []
+
+  # -- Backstage container additional volume mounts
+  extraVolumeMounts: []
+
+  # -- Backstage container additional volumes
+  extraVolumes: []
+
+  # -- Backstage container init containers
+  initContainers: []
+
+  # -- Directory containing the backstage installation
+  installDir: /app
+
+  # -- Resource requests/limits
+  # <br /> Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#resource-requests-and-limits-of-pod-and-container
+  # <!-- E.g.
+  # resources:
+  #   limits:
+  #     memory: 1Gi
+  #     cpu: 1000m
+  #   requests:
+  #     memory: 250Mi
+  #     cpu: 100m -->
+  resources: {}
+
+  # -- Readiness Probe
+  # Backstage doesn't provide any health endpoints by default. A simple one can be added like this: https://backstage.io/docs/plugins/observability/#health-checks
+  # <br /> Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes
+  # <!-- E.g.
+  # readinessProbe:
+  #   failureThreshold: 3
+  #   httpGet:
+  #     path: /healthcheck
+  #     port: 7007
+  #     scheme: HTTP
+  #   initialDelaySeconds: 30
+  #   periodSeconds: 10
+  #   successThreshold: 2
+  #   timeoutSeconds: 2
+  readinessProbe: {}
+
+  # -- Liveness Probe
+  # Backstage doesn't provide any health endpoints by default. A simple one can be added like this: https://backstage.io/docs/plugins/observability/#health-checks
+  # <br /> Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes
+  # <!-- E.g.
+  # livenessProbe:
+  #   failureThreshold: 3
+  #   httpGet:
+  #     path: /healthcheck
+  #     port: 7007
+  #     scheme: HTTP
+  #   initialDelaySeconds: 60
+  #   periodSeconds: 10
+  #   successThreshold: 1
+  #   timeoutSeconds: 2
+  livenessProbe: {}
+
+  # -- Startup Probe
+  # Backstage doesn't provide any health endpoints by default. A simple one can be added like this: https://backstage.io/docs/plugins/observability/#health-checks
+  # <br /> Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes
+  # <!-- E.g.
+  # startupProbe:
+  #   failureThreshold: 3
+  #   httpGet:
+  #     path: /healthcheck
+  #     port: 7007
+  #     scheme: HTTP
+  #   initialDelaySeconds: 60
+  #   periodSeconds: 10
+  #   successThreshold: 1
+  #   timeoutSeconds: 2
+  startupProbe: {}
+
+  # -- Security settings for a Pod.
+  #  The security settings that you specify for a Pod apply to all Containers in the Pod.
+  # <br /> Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  podSecurityContext: {}
+
+  # -- Security settings for a Container.
+  # <br /> Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  containerSecurityContext: {}
+
+  # Allows to define the appConfig as a multiline string that generates a ConfigMap
+  # automatically, not requiring to have it pre provisioned as with the extraAppConfig key.
+  # DO NOT USE if you need to put sensitive data in the appConfig.
+  # E.g:
+  # appConfig:
+  #   app:
+  #     baseUrl: https://somedomain.tld
+  # -- Generates ConfigMap and configures it in the Backstage pods
+  appConfig:
+    app:
+      title: Backstage By Syntasso
+      baseUrl: http://localhost:31338
+    organization:
+      name: NatWest
+    backend:
+      baseUrl: http://localhost:31338
+      listen:
+        port: 7007
+        host: 0.0.0.0
+      csp:
+        connect-src: ["'self'", "http:", "https:"]
+        upgrade-insecure-requests: false
+      cors:
+        origin: http://localhost:3000
+        methods: [GET, HEAD, PATCH, POST, PUT, DELETE]
+        credentials: true
+      database:
+        client: better-sqlite3
+        connection: ":memory:"
+      cache:
+        store: memory
+      reading:
+        allow:
+        - host: example.com
+        - host: 'gitlab.com'
+        - host: 'natwest.gitlab-dedicated.com'
+    kubernetes:
+      serviceLocatorMethod:
+        type: "multiTenant"
+      clusterLocatorMethods:
+      - type: "config"
+        clusters:
+        - url: https://192.168.49.2:8443
+          name: kind-worker
+          skipTLSVerify: true
+          authProvider: serviceAccount
+          skipMetricsLookup: true
+          serviceAccountToken: eyJhbGciOiJSUzI1NiIsImtpZCI6IkluWWRWV28tZmRaNklXbUtJV010MTZqS1VRQTJucGduQ0dXMVRLU18wWlUifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImtyYXRpeC1iYWNrc3RhZ2Utd29ya2VyLXNhLXRva2VuIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImtyYXRpeC1iYWNrc3RhZ2Utd29ya2VyLXNhIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiNTljYTkzNzctYzU2MS00YjM4LWE1ZGMtZjg2OTgyZGUxMDBjIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6a3JhdGl4LWJhY2tzdGFnZS13b3JrZXItc2EifQ.THawE4ozso3m-cfgg9QFKFJ48STeiSw_Z8F0T25h-aKXhVFUrKz88We4Bz7xAxEx0JSHNNec5gp2lHP48MM2IjBzg5tE6air5G_Ck7rD-L8pZsmbc7uIiloBju4yMIRYLgr4nYPmj0_TqGO4E7pf1jENJCnHeyiDeXp4QbJSOMH5UibY8PEyxCyyhdofROSV5la6Bw47-as_TyYNRf_uxDyJs7UM96ZAxtN-JR7PbjvuDI9jm5KPmk-wEBGgNjcN3UNVvdWt3RJXr3K157l0KKEaqPC8e5BOEMfgUoZNgTIhff50UvSejzd9XZ26ELcfTgP569lbLCxIu1yfnFf9Ug
+          customResources: []
+        - url: https://192.168.58.2:8443
+          name: kind-platform
+          skipTLSVerify: true
+          authProvider: serviceAccount
+          serviceAccountToken: eyJhbGciOiJSUzI1NiIsImtpZCI6IkNpRlJ0cGFoZjBWSk5TTEhqaHItMTZzd0VyMWhWTkRaUTRTcHU3RUxqbk0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImtyYXRpeC1iYWNrc3RhZ2Utc2EtdG9rZW4iLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoia3JhdGl4LWJhY2tzdGFnZS1zYSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjJlMzYzZWJiLTVmMTQtNGE5Ni04MDlhLWQ3YzkzMTYzMjU0ZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpkZWZhdWx0OmtyYXRpeC1iYWNrc3RhZ2Utc2EifQ.boI9uF2lZl-llK6pTUpopFTAFG0zjTdbnRZhi7rPG4n55N1OF-M2niKLwF0k5OX54eiFGY-PJ0kEB2hFTRSsAEG4O_mEgXWKfyuOZEw4ApD975bYXEIUSfCXE6hXUAJv7dfW82ivXamYoW8JKravmVEdCom55XdOw5gmO0xjKxorKhnhbY5TZ5DNPT9dpTuLKF9pTjH1tw4EdhW_WTykkC6XJpPMKdWXNzWRmt9Y4DECGkeB6GY7VjFuj2sQpUo2N3PZkNSfV5xxmHkzkmzcOLSVanCinoYifwMIbPo084DfwCvMdks0awJwUYd7tWym9Mw7s8bKUKbXQdmqBNxv8w
+          skipMetricsLookup: true
+          customResources: [{group: "platform.kratix.io", apiVersion: "v1alpha1", plural: "promises"}]
+    integrations:
+      awsS3:
+      - endpoint: 'http://minio.kratix-platform-system.svc.cluster.local'
+        s3ForcePathStyle: true
+        accessKeyId: ${AWS_ACCESS_KEY_ID}
+        secretAccessKey: ${AWS_SECRET_ACCESS_KEY}
+      github:
+      - host: github.com
+        token: ${GITHUB_TOKEN}
+      gitlab:
+      - host: natwest.gitlab-dedicated.com
+        apiBaseUrl: https://natwest.gitlab-dedicated.com/api/v4
+        token: Sr-UkHUS1C4qcCmatw46
+    techdocs:
+      builder: "local" # Alternatives - 'external'
+      generator:
+        runIn: "docker" # Alternatives - 'local'
+      publisher:
+        type: "local" # Alternatives - 'googleGcs' or 'awsS3'. Read documentation for using alternatives.
+    auth:
+      providers: {}
+    scaffolder:
+    catalog:
+      import:
+        entityFilename: catalog-info.yaml
+        pullRequestBranchName: backstage-integration
+      rules:
+      - allow: [Domain, Component, System, API, Resource, Location, Group, Template]
+      providers:
+        awsS3:
+          kratix-minio:
+            bucketName: kratix
+            prefix: backstage/
+            region: us-east-2
+            schedule: # optional; same options as in TaskScheduleDefinition
+              frequency: {minutes: 1}
+              timeout: {seconds: 20}
+      locations:
+
+  # -- Affinity for pod assignment
+  # <br /> Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  # -- Node labels for pod assignment
+  # <br /> Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector
+  nodeSelector: {}
+
+  # -- Node tolerations for server scheduling to nodes with taints
+  # <br /> Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute"
+
+  # -- Annotations to add to the backend deployment pods
+  podAnnotations: {}
+
+  # -- Labels to add to the backend deployment pods
+  podLabels: {}
+
+  # -- Additional custom annotations for the `Deployment` resource
+  annotations: {}
+
+## @section Traffic Exposure parameters
+
+## Service parameters
+##
+# -- Service parameters
+# @default -- See below
+service:
+
+  # -- Kubernetes Service type
+  type: NodePort
+
+  # -- Backstage svc port for client connections
+  ports:
+    backend: 7007
+
+    # -- Backstage svc port name
+    name: http-backend
+
+    # -- Backstage svc target port referencing receiving pod container port
+    targetPort: backend
+
+  # -- Node port for the Backstage client connections
+  # Choose port between `30000-32767`
+  nodePorts:
+    backend: "31339"
+
+  # -- Control where client requests go, to the same pod or round-robin
+  # (values: `ClientIP` or `None`)
+  # <br /> Ref: https://kubernetes.io/docs/concepts/services-networking/service/#session-stickiness
+  sessionAffinity: None
+
+  # -- Backstage service Cluster IP
+  #
+  # <br /> E.g `clusterIP: None`
+  clusterIP: ""
+
+  # -- Backstage service Load Balancer IP
+  #
+  # <br /> Ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
+  loadBalancerIP: ""
+
+  # -- Load Balancer sources
+  #
+  # <br /> Ref: https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
+  # <br /> E.g `loadBalancerSourceRanges: [10.10.10.0/24]`
+  loadBalancerSourceRanges: []
+
+  # -- Backstage service external traffic policy
+  #
+  # Ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  externalTrafficPolicy: Cluster
+
+  # -- Additional custom annotations for Backstage service
+  annotations: {}
+
+  # -- Extra ports to expose in the Backstage service (normally used with the `sidecar` value)
+  extraPorts: []
+
+## @section NetworkPolicy parameters
+##
+networkPolicy:
+  # -- Specifies whether a NetworkPolicy should be created
+  enabled: false
+
+  ## Ingress Rules
+  ##
+  ingressRules:
+
+    # -- Namespace selector label allowed to access the Backstage instance
+    namespaceSelector: {}
+
+    # -- Pod selector label allowed to access the Backstage instance
+    podSelector: {}
+
+    # -- Additional custom ingress rules
+    customRules: []
+    #   - to:
+  #       - namespaceSelector:
+  #           matchLabels:
+  #             label: example
+
+  ## Egress Rules
+  ##
+  egressRules:
+
+    # -- Deny external connections. Should not be enabled when working with an external database.
+    denyConnectionsToExternal: false
+
+    # -- Additional custom egress rules
+    customRules: []
+    #   - to:
+#       - namespaceSelector:
+#           matchLabels:
+#             label: example
+
+
+# -- PostgreSQL [chart configuration](https://github.com/bitnami/charts/blob/master/bitnami/postgresql/values.yaml)
+# @default -- See below
+postgresql:
+
+  # -- Switch to enable or disable the PostgreSQL helm chart
+  enabled: false
+
+  # -- The authentication details of the Postgres database
+  auth:
+
+    # -- Name for a custom user to create
+    username: bn_backstage
+
+    # -- Password for the custom user to create
+    password: ""
+
+    # -- Name of existing secret to use for PostgreSQL credentials
+    existingSecret: ""
+
+    # -- The secret keys Postgres will look for to retrieve the relevant password
+    secretKeys:
+
+      # -- The key in which Postgres will look for, for the admin password, in the existing Secret
+      adminPasswordKey: admin-password
+
+      # -- The key in which Postgres will look for, for the user password, in the existing Secret
+      userPasswordKey: user-password
+
+      # -- The key in which Postgres will look for, for the replication password, in the existing Secret
+      replicationPasswordKey: replication-password
+
+  # -- PostgreSQL architecture (`standalone` or `replication`)
+  architecture: standalone
+
+# -- Service Account Configuration
+# @default -- See below
+serviceAccount:
+
+  # -- Enable the creation of a ServiceAccount for Backstage pods
+  create: false
+
+  # -- Name of the ServiceAccount to use
+  # If not set and `serviceAccount.create` is true, a name is generated
+  name: ""
+
+  # -- Additional custom labels to the service ServiceAccount.
+  labels: {}
+
+  # -- Additional custom annotations for the ServiceAccount.
+  annotations: {}
+
+  # -- Auto-mount the service account token in the pod
+  automountServiceAccountToken: true
+
+# -- Metrics configuration
+metrics:
+
+  # -- ServiceMonitor configuration
+  # <br /> Allows configuring your backstage instance as a scrape target for [Prometheus](https://github.com/prometheus/prometheus) using a ServiceMonitor custom resource that [Prometheus Operator](https://github.com/prometheus-operator/prometheus-operator) can understand.
+  serviceMonitor:
+
+    # -- If enabled, a ServiceMonitor resource for Prometheus Operator is created
+    # <br /> Prometheus Operator must be installed in your cluster prior to enabling.
+    enabled: false
+
+    # -- ServiceMonitor annotations
+    annotations: {}
+
+    # -- Additional ServiceMonitor labels
+    labels: {}
+
+    # -- ServiceMonitor scrape interval
+    interval: null
+
+    # -- ServiceMonitor endpoint path
+    # <br /> Note that the /metrics endpoint is NOT present in a freshly scaffolded Backstage app. To setup, follow the [Prometheus metrics tutorial](https://github.com/backstage/backstage/blob/master/contrib/docs/tutorials/prometheus-metrics.md).
+    path: /metrics
